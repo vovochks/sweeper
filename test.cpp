@@ -5,7 +5,7 @@
 
 using namespace std;
 
-struct Map
+/*struct Map
 {
 	short part;
 	char symbol;
@@ -89,3 +89,44 @@ int main()
 	return 0;
 }
 
+
+
+int main()
+{
+	std::vector<int> line;
+
+	int temp;
+
+	for(int i = 0; i < 8; i++)
+	{
+		cin >> temp;
+
+		line.push_back(temp);
+	}
+
+	cout << "\n\n";
+
+	for(int i = 0; i < 8; i++)
+	{
+		cout << line.at(i) << " ";
+	}
+
+
+	cout << "\n\n";
+
+	for(int n = 0; n <= line.size() - 1; n++)
+	{
+		for(int m = line.size() - 1; m > 0; m--)
+		{
+			if(m > n) { temp = line.at(m); if(temp > line.at(n)){ line.at(m) = line.at(n); line.at(n) = temp; } }
+		}
+	}
+
+	for(int i = 0; i < 8; i++)
+	{
+		cout << line.at(i) << " ";
+	}
+
+	return 0;
+}
+*/
