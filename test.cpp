@@ -114,11 +114,16 @@ int main()
 
 	cout << "\n\n";
 
-	for(int n = 0; n <= line.size() - 1; n++)
+	for(int n = 0; n < line.size(); n++)
 	{
-		for(int m = line.size() - 1; m > 0; m--)
+		for(int m = line.size() - 1; m >= n; m--)
 		{
-			if(m > n) { temp = line.at(m); if(temp > line.at(n)){ line.at(m) = line.at(n); line.at(n) = temp; } }
+			temp = line.at(m);
+			
+			if(temp > line.at(n))
+			{
+				line.at(m) = line.at(n); line.at(n) = temp;
+			}
 		}
 	}
 
