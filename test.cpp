@@ -2,14 +2,12 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <cstdlib>
+#include <fstream>
 
 using namespace std;
 
-struct Pointer
-{
-	std::vector<short> ptrL;
-	std::vector<short> ptrP;
-};
+const short view = 15;
 
 struct Matrix
 {
@@ -17,45 +15,113 @@ struct Matrix
 	char symbol;
 };
 
-struct Map
-{
-	std::string address, name;
-	short size = 10, vecZ = 2;
-	std::vector<Matrix> mtrx;
-};
 
 struct Unit
 {
 	bool player;
-	short posX = 3, posY = 3, posZ = 0, oldX, oldY, oldZ;
+	short posX = 0, posY = 0, posZ = 0, oldX, oldY, oldZ;
 };
 
-int main()
+struct Map
 {
-	Map map; Unit unt;
-	short i;
-	bool run = 1;
-	char temp;
-	std::string line = "10 F 1 W 8 F 2 W 8 F 2 W 8 F 2 W 8 F 2 W 8 F 2 W 8 F 2 W 8 F 2 W 8 F 1 W 10 F ";
+	std::string address, name;
+	short size = 256, vecZ = 3;
+	bool check;
+	std::vector<Matrix> mtrx;
 
-	for(short k = 0; k < 2; k++) line = line + "11 W 8 F 2 W 8 F 4 W 4 F 4 W 8 F 4 W 4 F 4 W 8 F 2 W 8 F 2 W 8 F 11 W ";
+	void Read();
+};
+
+void layout(char task)
+{
+	switch(task)
+	{
+		case 'm':
+		{
+			cout << "\033[2;2H";
+			break;
+		}
+		case 'l':
+		{
+			for(short i = 1; i <= 24; i++)
+			{
+				if(i == 1 || i == 24 || i == 17)
+				{
+					for(short j = 1; j <= 80; j++)
+					{
+						cout << "\033[" << i << ";" << j << "H" << "=";
+					}
+				}
+				else
+				{
+					if(i < 18 || i > 23) cout << "\033[" << i << ";1H" << "|" << "\033[" << i << ";47H" << "|" << "\033[" << i << ";80H" << "|";
+					else cout << "\033[" << i << ";1H" << "|" << "\033[" << i << ";80H" << "|";
+				}
+			}
+			break;
+		}
+		default:
+		{
+		}
+	}
+}
+
+void Map::Read()
+{
+	ifstream mapFile("test.txt");
+
+	int i;
+	std::string line;
+	char temp;
+
+	if(!mapFile.is_open())
+	{
+	}
+	else
+	{
+		getline(mapFile, line);
+	}
 
 	std::stringstream ss(line);
 
 	while(ss >> i >> temp)
 	{
-		map.mtrx.push_back({i, temp});
+		mtrx.push_back({i, temp});
 	};
+
+	i = 0;
+
+	for(short n = 0; n < mtrx.size(); n++)
+	{
+		i += mtrx.at(n).part;
+	}
+
+	if(i != (size * size * vecZ)) check = 0; else check = 1;
+}
+
+int main()
+{
+	system("clear");
+
+	Map map; Unit unt;
+	int i;
+	bool run = 1;
+	char temp;
+
+	map.Read();
 
 	while(run)
 	{
 		unt.oldX = unt.posX; unt.oldY = unt.posY; unt.oldZ = unt.posZ;
 
-		for(short n = (unt.posY - 2); n >= (unt.posY - 2) && n <= (unt.posY + 2); n++)
+		layout('l');
+		layout('m');
+
+/*		for(short n = (unt.posY - (view / 2)); n >= (unt.posY - (view / 2)) && n <= (unt.posY + (view / 2)); n++)
 		{
 			if(n >= 0 && n < map.size)
 			{
-				for(short j = (unt.posX - 2); j <= (unt.posX + 2); j++)
+				for(short j = (unt.posX - (view * 3 / 2)); j <= (unt.posX + (view * 3 / 2)); j++)
 				{
 					if(j < 0 || j >= map.size)
 					{
@@ -64,15 +130,17 @@ int main()
 					else
 					{
 						i = 0;
-						for (short m = 0; m < map.mtrx.size(); m++)
+
+						for(short m = 0; m < map.mtrx.size(); m++)
 						{
-						    if(((n * map.size + j) + (map.size * map.size * unt.posZ)) >= i &&
+							if(((n * map.size + j) + (map.size * map.size * unt.posZ)) >= i &&
 							((n * map.size + j) + (map.size * map.size * unt.posZ)) < (i + map.mtrx.at(m).part))
-						    {
-						        cout << map.mtrx.at(m).symbol;
-						        break;
-						    }
-						    i += map.mtrx.at(m).part;
+						    	{
+						        	cout << map.mtrx.at(m).symbol;
+						        	break;
+						    	}
+
+							i += map.mtrx.at(m).part;
 						}
 					}
 				}
@@ -80,13 +148,13 @@ int main()
 			}
 			else
 			{
-				for(short m = (unt.posX - 2); m >= (unt.posX - 2) && m <= (unt.posX + 2); m++) cout << " ";
+				for(short m = 1; m <= (view * 3); m++) cout << " ";
 			}
 
-			cout << "\n";
-		}
+			cout << "\n" << "\033[2G";
+*/		}
 
-		cout << "\n\n" << unt.posX << " " << unt.posY << " " << unt.posZ << " " << map.vecZ << endl; cin >> temp;
+		cout << "\033[16;48H>"; cin >> temp; cout << "\033[A";
 
 		if(temp == 'W' || temp == 'w') unt.posY--; if(temp == 'S' || temp == 's') unt.posY++;
 		if(temp == 'A' || temp == 'a') unt.posX--; if(temp == 'D' || temp == 'd') unt.posX++;
@@ -94,70 +162,24 @@ int main()
 		if(temp == 'Q' || temp == 'q') run = 0;
 
 		i = 0;
-		for(short m = 0; m < map.mtrx.size(); m++)
+/*		for(short m = 0; m < map.mtrx.size(); m++)
 		{
+
 			if(i <= ((unt.posY * map.size + unt.posX) + (map.size * map.size * unt.posZ)) &&
 			  (i + map.mtrx.at(m).part) > ((unt.posY * map.size + unt.posX) + (map.size * map.size * unt.posZ)) &&
 			  map.mtrx.at(m).symbol == 'W')
 			{
-				unt.posX = unt.oldX; unt.posY = unt.oldY; unt.posZ = unt.oldZ;
+				unt.posX = unt.oldX; unt.posY = unt.oldY; unt.posZ = unt.oldZ; break;
 			}
+
 			if(unt.posX < 0 || unt.posX >= map.size || unt.posY < 0 || unt.posY >= map.size || unt.posZ < 0 || unt.posZ >= map.vecZ)
 			{
-				unt.posX = unt.oldX; unt.posY = unt.oldY; unt.posZ = unt.oldZ;
+				unt.posX = unt.oldX; unt.posY = unt.oldY; unt.posZ = unt.oldZ; break;
 			}
 			i += map.mtrx.at(m).part;
 		}
-
+*/
 	};
 
 	return 0;
 }
-
-/*
-int main()
-{
-	std::vector<int> line;
-
-	int temp;
-
-	for(int i = 0; i < 8; i++)
-	{
-		cin >> temp;
-
-		line.push_back(temp);
-	}
-
-	cout << "\n\n";
-
-	for(int i = 0; i < 8; i++)
-	{
-		cout << line.at(i) << " ";
-	}
-
-
-	cout << "\n\n";
-
-	for(int n = 0; n < line.size(); n++)
-	{
-		for(int m = line.size() - 1; m >= n; m--)
-		{
-
-			temp = line.at(m);
-
-			if(temp > line.at(n))
-			{
-				line.at(m) = line.at(n);line.at(n) = temp;
-			}
-		}
-	}
-
-	for(int i = 0; i < 8; i++)
-	{
-		cout << line.at(i) << " ";
-	}
-
-	return 0;
-}
-
-*/
