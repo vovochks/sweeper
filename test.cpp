@@ -70,8 +70,9 @@ void Map::Read()
 {
 	ifstream mapFile("test.txt");
 
-	int i;
-	std::string line;
+	bool read = 0;
+	int i = 0;
+	std::string line, tempLine;
 	char temp;
 
 	if(!mapFile.is_open())
@@ -79,7 +80,20 @@ void Map::Read()
 	}
 	else
 	{
-		getline(mapFile, line);
+
+		while(getline(mapFile, tempLine))
+		{
+			if(tempLine == "size") mapFile >> size >> vecZ; if(tempLine == "grid")
+			{
+				read = 1; continue;
+			}
+
+			if(read && i < vecZ)
+			{
+				line += tempLine; i++;
+			}
+			else read = 0;
+		};
 	}
 
 	std::stringstream ss(line);
@@ -105,6 +119,7 @@ int main()
 
 	Map map; Unit unt;
 	int i;
+	short j;
 	bool run = 1;
 	char temp;
 
@@ -116,6 +131,46 @@ int main()
 
 		layout('l');
 		layout('m');
+
+		i = 0; j = 0;
+
+		for(short n = (unt.posY - (view / 2)); n >= (unt.posY - (view / 2)) && n <= (unt.posY + (view / 2)); n++)
+		{
+			if(n >= 0 && n < map.size)
+			{
+				for(short m = (unt.posX - (view * 3 / 2)); m <= (unt.posX + (view * 3 / 2)); m++)
+				{
+					if(m < 0 || m >= map.size)
+					{
+						cout << " ";
+					}
+					else
+					{
+						if(((n * map.size + m) + (map.size * map.size * unt.posZ)) > i &&
+						((n * map.size + m) + (map.size * map.size * unt.posZ)) < (i + map.mtrx.at(j).part)) cout << map.mtrx.at(j).symbol;
+						else
+						{
+							while(((n * map.size + m) + (map.size * map.size * unt.posZ)) > i &&
+							((n * map.size + m) + (map.size * map.size * unt.posZ)) > (i + map.mtrx.at(j).part) && j < map.mtrx.size())
+							{
+								i += map.mtrx.at(j).part;
+								if((j + 1) < map.mtrx.size()) j++;
+							};
+
+							cout << map.mtrx.at(j).symbol;
+						}
+					}
+				}
+
+			}
+			else
+			{
+				for(short k = 1; k <= (view * 3); k++) cout << " ";
+			}
+
+			cout << "\n" << "\033[2G";
+		}
+
 
 /*		for(short n = (unt.posY - (view / 2)); n >= (unt.posY - (view / 2)) && n <= (unt.posY + (view / 2)); n++)
 		{
@@ -152,7 +207,7 @@ int main()
 			}
 
 			cout << "\n" << "\033[2G";
-*/		}
+		}*/
 
 		cout << "\033[16;48H>"; cin >> temp; cout << "\033[A";
 
@@ -161,7 +216,30 @@ int main()
 		if(temp == 'F' || temp == 'f') unt.posZ++; if(temp == 'G' || temp == 'g') unt.posZ--;
 		if(temp == 'Q' || temp == 'q') run = 0;
 
-		i = 0;
+		if(unt.posX < 0 || unt.posX >= map.size || unt.posY < 0 || unt.posY >= map.size || unt.posZ < 0 || unt.posZ >= map.vecZ)
+		{
+			unt.posX = unt.oldX; unt.posY = unt.oldY; unt.posZ = unt.oldZ;
+		}
+		else
+		{
+			i = 0; j = 0;
+
+			while(i < ((unt.posY * map.size + unt.posX) + (map.size * map.size * unt.posZ)) &&
+			(i + map.mtrx.at(j).part) < ((unt.posY * map.size + unt.posX) + (map.size * map.size * unt.posZ)) &&
+			 j < map.mtrx.size())
+			{
+				i += map.mtrx.at(j).part;
+				if((j + 1) < map.mtrx.size()) j++;
+			};
+
+			if(i <= ((unt.posY * map.size + unt.posX) + (map.size * map.size * unt.posZ)) &&
+			(i + map.mtrx.at(j).part) > ((unt.posY * map.size + unt.posX) + (map.size * map.size * unt.posZ)) &&
+			 map.mtrx.at(j).symbol == 'W')
+			{
+				unt.posX = unt.oldX; unt.posY = unt.oldY; unt.posZ = unt.oldZ;
+			}
+		}
+
 /*		for(short m = 0; m < map.mtrx.size(); m++)
 		{
 
