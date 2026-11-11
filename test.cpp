@@ -146,12 +146,12 @@ int main()
 					}
 					else
 					{
-						if(((n * map.size + m) + (map.size * map.size * unt.posZ)) > i &&
+						if(((n * map.size + m) + (map.size * map.size * unt.posZ)) >= i &&
 						((n * map.size + m) + (map.size * map.size * unt.posZ)) < (i + map.mtrx.at(j).part)) cout << map.mtrx.at(j).symbol;
 						else
 						{
 							while(((n * map.size + m) + (map.size * map.size * unt.posZ)) > i &&
-							((n * map.size + m) + (map.size * map.size * unt.posZ)) > (i + map.mtrx.at(j).part) && j < map.mtrx.size())
+							((n * map.size + m) + (map.size * map.size * unt.posZ)) >= (i + map.mtrx.at(j).part) && j < map.mtrx.size())
 							{
 								i += map.mtrx.at(j).part;
 								if((j + 1) < map.mtrx.size()) j++;
@@ -225,7 +225,7 @@ int main()
 			i = 0; j = 0;
 
 			while(i < ((unt.posY * map.size + unt.posX) + (map.size * map.size * unt.posZ)) &&
-			(i + map.mtrx.at(j).part) < ((unt.posY * map.size + unt.posX) + (map.size * map.size * unt.posZ)) &&
+			(i + map.mtrx.at(j).part) <= ((unt.posY * map.size + unt.posX) + (map.size * map.size * unt.posZ)) &&
 			 j < map.mtrx.size())
 			{
 				i += map.mtrx.at(j).part;
