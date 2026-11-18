@@ -11,7 +11,7 @@ const short view = 15;
 
 struct Matrix
 {
-	short part;
+	int part;
 	char symbol;
 };
 
@@ -19,17 +19,17 @@ struct Matrix
 struct Unit
 {
 	bool player;
-	short posX = 0, posY = 0, posZ = 0, oldX, oldY, oldZ;
+	short posX = 0, posY = 0, posZ = 0, oldX, oldY, oldZ, lvl = 0;
 };
 
 struct Map
 {
 	std::string address, name;
-	short size = 256, vecZ = 3;
+	short size, vecZ;
 	bool check;
 	std::vector<Matrix> mtrx;
 
-	void Read();
+	void Read(Unit& unt);
 };
 
 void layout(char task)
@@ -66,13 +66,17 @@ void layout(char task)
 	}
 }
 
-void Map::Read()
+void Map::Read(Unit& unt)
 {
-	ifstream mapFile("test.txt");
-
-	bool read = 0;
-	int i = 0;
 	std::string line, tempLine;
+	std::stringstream ss;
+
+	ss << "level" << unt.lvl << ".txt"; line = ss.str();
+	ss.str(""); ss.clear();
+
+	ifstream mapFile(line);
+
+	int i = 0;
 	char temp;
 
 	if(!mapFile.is_open())
@@ -81,22 +85,20 @@ void Map::Read()
 	else
 	{
 
-		while(getline(mapFile, tempLine))
+		while(mapFile >> tempLine)
 		{
-			if(tempLine == "size") mapFile >> size >> vecZ; if(tempLine == "grid")
-			{
-				read = 1; continue;
-			}
 
-			if(read && i < vecZ)
+			if(tempLine == "size") mapFile >> size >> vecZ;
+
+			if(tempLine == "grid")
 			{
-				line += tempLine; i++;
+				while(getline(mapFile, tempLine))
+				{
+					ss << tempLine << " ";
+				};
 			}
-			else read = 0;
 		};
 	}
-
-	std::stringstream ss(line);
 
 	while(ss >> i >> temp)
 	{
@@ -110,7 +112,9 @@ void Map::Read()
 		i += mtrx.at(n).part;
 	}
 
-	if(i != (size * size * vecZ)) check = 0; else check = 1;
+	if(i == (size * size * vecZ) && i > 0) check = 1; else check = 0;
+
+	cout << " check " << check << " vecZ " << vecZ << " size " << size;
 }
 
 int main()
@@ -123,9 +127,9 @@ int main()
 	bool run = 1;
 	char temp;
 
-	map.Read();
+	map.Read(unt);
 
-	while(run)
+	while(run && map.check)
 	{
 		unt.oldX = unt.posX; unt.oldY = unt.posY; unt.oldZ = unt.posZ;
 
